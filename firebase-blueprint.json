@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "UserPreference": {
+      "title": "UserPreference",
+      "description": "Per-user Kavya AI assistant preferences including language, voice speed, and memory toggle.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Authenticated user UID." },
+        "displayName": { "type": "string", "description": "Preferred user display name." },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["Hinglish", "Hindi", "English"],
+          "description": "Preferred conversation language."
+        },
+        "speechSpeed": { "type": "number", "description": "TTS speaking speed multiplier (0.5 to 2.0)." },
+        "autoSpeak": { "type": "boolean", "description": "Whether Kavya speaks replies automatically." },
+        "memoryEnabled": { "type": "boolean", "description": "Whether persistent memory saving is enabled." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "displayName", "preferredLanguage", "speechSpeed", "autoSpeak", "memoryEnabled", "createdAt", "updatedAt"]
+    },
+    "MemoryItem": {
+      "title": "MemoryItem",
+      "description": "Authorized non-sensitive persistent memory item remembered by Kavya.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user UID." },
+        "category": {
+          "type": "string",
+          "enum": ["preference", "project", "command", "contact", "fact"],
+          "description": "Memory category."
+        },
+        "label": { "type": "string", "description": "Short key or title for the memory." },
+        "value": { "type": "string", "description": "Stored memory content." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "category", "label", "value", "createdAt", "updatedAt"]
+    },
+    "ReminderItem": {
+      "title": "ReminderItem",
+      "description": "User reminder created directly or via Kavya assistant.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user UID." },
+        "title": { "type": "string", "description": "Reminder title." },
+        "dueTimeText": { "type": "string", "description": "Human-readable scheduled time." },
+        "dueAtMillis": { "type": "integer", "description": "Epoch milliseconds for reminder trigger." },
+        "completed": { "type": "boolean", "description": "Whether the reminder is completed." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "title", "dueTimeText", "dueAtMillis", "completed", "createdAt", "updatedAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Persisted conversation turn between the user and Kavya.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user UID." },
+        "sender": { "type": "string", "enum": ["user", "kavya"], "description": "Message author." },
+        "text": { "type": "string", "description": "Message text." },
+        "mode": { "type": "string", "enum": ["online", "offline"], "description": "Connectivity mode used." },
+        "actionSummary": { "type": "string", "description": "Optional summary of executed or pending actions." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "sender", "text", "mode", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/preferences/{prefId}": {
+      "schema": { "$ref": "#/entities/UserPreference" },
+      "description": "User assistant preferences document."
+    },
+    "/users/{userId}/memories/{memoryId}": {
+      "schema": { "$ref": "#/entities/MemoryItem" },
+      "description": "Per-user persistent memory items."
+    },
+    "/users/{userId}/reminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/ReminderItem" },
+      "description": "Per-user reminders."
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Per-user conversation history with Kavya."
+    }
+  }
+}
